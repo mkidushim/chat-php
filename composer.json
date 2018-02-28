@@ -1,0 +1,9 @@
+{
+    "minimum-stability": "dev",
+    "require": {
+        "wisembly/elephant.io": "^3.3",
+        "workerman/phpsocket.io-emitter": "^1.0",
+        "shakahl/socket.io-php-emitter": "^0.1.1",
+        "touskar/php-socket-io-event-emitter": "*"
+    }
+}
