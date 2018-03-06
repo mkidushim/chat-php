@@ -3,8 +3,8 @@ header('Content-Type: application/json');
 require_once 'socket.php';
 $dbHost = 'localhost';
 $dbUser = 'root';
-$dbPass = 'digital';
-$dbName = 'chat';
+$dbPass = 'Monster.';
+$dbName = 'mtm';
 $response = array(
   'status'=>'NO',
   'content'=>''
@@ -15,22 +15,39 @@ if($m->connect_errno){
   echo json_encode($response);
   exit;
 }
-$uname = 'dry';
+$uname = 'mike';
+$password = md5('digital');
 if(isset($_REQUEST['username'])){
   $uname = $_REQUEST['username'];
 }
-$sql = "SELECT `id` FROM `user` where `username`='$uname'";
+if(isset($_REQUEST['password'])){
+  $p = md5($_REQUEST['password']);
+}
+$sql = "SELECT `id` FROM `patient` where `email`='$uname' AND `password` = '$password'";
 $res = $m->query($sql);
-$uid = $res->fetch_assoc()['id'];
-$sql = "UPDATE `user` SET `online`='Y' where `id`='$uid'";
+$r = $res->fetch_assoc();
+$uid = $r['id'];
+$sql = "UPDATE `ft_appt` SET `online`='2' where `patient_id`='$uid'";
 $m->query($sql);
+$sql = "SELECT `hospital_id` FROM `ft_appt` where `patient_id`='$uid'";
+$res = $m->query($sql);
+$r = $res->fetch_assoc();
+$hid = $r['hospital_id'];
 use ElephantIO\Client;
 use ElephantIO\Engine\SocketIO\Version1X;
 require __DIR__ . '/vendor/autoload.php';
-$client = new Client(new Version1X('http://localhost:3000'));
+$options = [
+    'context' => [
+      'ssl' => [
+        'verify_peer' => false,
+        'verify_peer_name' => false
+      ]
+    ]
+];
+$client = new Client(new Version1X('https://mike.fusionofideas.com:4000',$options));
 $client->initialize();
 // $client->connect(['query', 'userId=$uid']);
-$client->emit('chat-list-php', ['userId'=>$uid,'connected'=>true]);
+$client->emit('chat-list-php', ['hid'=>$hid,'connected'=>true]);
 $client->close();
 
 // $response['content'] = $server_output;

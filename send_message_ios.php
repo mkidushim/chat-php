@@ -4,8 +4,8 @@ require_once 'socket.php';
 
 $dbHost = 'localhost';
 $dbUser = 'root';
-$dbPass = 'digital';
-$dbName = 'chat';
+$dbPass = 'Monster.';
+$dbName = 'mtm';
 $response = array(
   'status'=>'NO',
   'content'=>''
@@ -21,10 +21,11 @@ if(isset($_REQUEST['message'])){
   $msg = $_REQUEST['message'];
 }
 //patient on ios app
-$patientId = '2';
+$patientId = '43';
 //er or doctor at web browser
 $doctorId = '1';
-$sql = "INSERT INTO `message` (`from_user_id`,`to_user_id`,`message`) values ('$patientId','$doctorId','$msg')";
+$apptId = '3';
+$sql = "INSERT INTO `ft_chat` (`patient_id`,`user_id`,`content`,`sender`,`appt_id`) values ('$patientId','$doctorId','$msg','patient','$apptId')";
 if(!$m->query($sql)){
   $response['content'] = 'Query error.';
   echo json_encode($response);
@@ -36,10 +37,18 @@ $res = $m->query($sql);
 $did = $res->fetch_assoc()['socketid'];
 use ElephantIO\Client;
 use ElephantIO\Engine\SocketIO\Version1X;
+$options = [
+    'context' => [
+      'ssl' => [
+        'verify_peer' => false,
+        'verify_peer_name' => false
+      ]
+    ]
+];
 require __DIR__ . '/vendor/autoload.php';
-$client = new Client(new Version1X('http://localhost:3000'));
+$client = new Client(new Version1X('https://mike.fusionofideas.com:4000',$options));
 $client->initialize();
-$client->emit('add-message-php', ['toSocketId'=>$did,'fromUserId' => $patientId,'toUserId' => $doctorId,'message'=>$msg]);
+$client->emit('add-message-php', ['socket'=>$did,'fromUserId' => $patientId,'toUserId' => $doctorId,'message'=>$msg,'sender'=>'patient']);
 $client->close();
 
 // $response['content'] = 'Success';
